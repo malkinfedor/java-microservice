@@ -1,0 +1,31 @@
+version: '3.4'
+services:
+  config-server:
+    image: malkinfedor/java-microservice:latest
+    command: ["java", "-jar", "config-server.jar"]
+  eureka-server:
+    image: malkinfedor/java-microservice:latest
+    depends_on: 
+    - config-server
+    command: ["./wait-for-it.sh", "config-server:8888", "--", "java", "-jar", "eureka-server.jar"]
+
+  items-service:
+    image: malkinfedor/java-microservice:latest
+    depends_on:
+    - config-server
+    command: ["./wait-for-it.sh", "config-server:8888", "--", "java", "-jar", "items-service.jar"]
+
+  items-ui:
+    image: malkinfedor/java-microservice:latest
+    depends_on:
+    - config-server
+    command: ["./wait-for-it.sh", "config-server:8888", "--", "java", "-jar", "items-ui.jar"]
+
+  ui-gateway:
+    image: malkinfedor/java-microservice:latest
+    ports: 
+    - "443:443"
+    depends_on:
+    - config-server
+    command: ["./wait-for-it.sh", "config-server:8888", "--", "java", "-jar", "ui-gateway.jar"]
+ 
